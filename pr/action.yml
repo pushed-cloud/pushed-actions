@@ -1,0 +1,63 @@
+name: 'Base PR Environment'
+description: 'Create, update, and delete PR environments on Norce Base Platform.'
+author: 'NorceTech'
+
+branding:
+  icon: 'git-pull-request'
+  color: 'purple'
+
+inputs:
+  action:
+    description: 'Action to perform (create, update, delete)'
+    required: true
+  image_tag:
+    description: 'Image tag for the PR environment (not needed for delete)'
+    required: false
+  app:
+    description: 'App name (defaults to repository name)'
+    required: false
+  config_file:
+    description: 'Path to config file'
+    required: false
+    default: '.base/config.yaml'
+  api_url:
+    description: 'Base Platform API URL'
+    required: false
+    default: 'https://base-api.norce.tech'
+  api_key:
+    description: 'Base Platform API key (identifies partner)'
+    required: true
+
+outputs:
+  success:
+    description: 'Whether the action was successful'
+    value: ${{ steps.pr.outputs.success }}
+  preview_url:
+    description: 'URL of the PR environment'
+    value: ${{ steps.pr.outputs.preview_url }}
+  message:
+    description: 'Result message'
+    value: ${{ steps.pr.outputs.message }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Manage PR Environment
+      id: pr
+      shell: bash
+      env:
+        API_URL: ${{ inputs.api_url }}
+        API_KEY: ${{ inputs.api_key }}
+        APP: ${{ inputs.app || github.event.repository.name }}
+        ACTION: ${{ inputs.action }}
+        IMAGE_TAG: ${{ inputs.image_tag }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PR_BRANCH: ${{ github.head_ref }}
+        COMMIT_SHA: ${{ github.event.pull_request.head.sha }}
+        PR_TITLE: ${{ github.event.pull_request.title }}
+        PR_URL: ${{ github.event.pull_request.html_url }}
+        CONFIG_FILE: ${{ inputs.config_file }}
+      run: bash ${{ github.action_path }}/pr.sh
+
+    # PR comments are handled by the norce-base GitHub App (via backend callbacks)
+    # The bot posts: ⏳ Deploying → 🚀 Ready (when healthy + reachable) → 🗑️ Deleted (when PR closes)

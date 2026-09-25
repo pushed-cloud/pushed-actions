@@ -1,0 +1,51 @@
+name: 'Base Sync Secrets'
+description: 'Sync secrets from GitHub Secrets to Azure Key Vault via Base Platform'
+author: 'NorceTech'
+
+branding:
+  icon: 'lock'
+  color: 'orange'
+
+inputs:
+  app:
+    description: 'App name (defaults to repository name)'
+    required: false
+  environment:
+    description: 'Sync only this environment (default: sync all environments in the file)'
+    required: false
+  secrets_file:
+    description: 'Path to secrets mapping file'
+    required: false
+    default: '.base/secrets.yaml'
+  api_url:
+    description: 'Base Platform API URL'
+    required: false
+    default: 'https://base-api.norce.tech'
+  api_key:
+    description: 'Base Platform API key (identifies partner)'
+    required: true
+
+outputs:
+  synced_count:
+    description: 'Number of secrets successfully synced'
+    value: ${{ steps.sync.outputs.synced_count }}
+  failed_count:
+    description: 'Number of secrets that failed to sync'
+    value: ${{ steps.sync.outputs.failed_count }}
+  synced_names:
+    description: 'Comma-separated list of synced secret names'
+    value: ${{ steps.sync.outputs.synced_names }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Sync secrets to Key Vault
+      id: sync
+      shell: bash
+      env:
+        API_URL: ${{ inputs.api_url }}
+        API_KEY: ${{ inputs.api_key }}
+        APP: ${{ inputs.app || github.event.repository.name }}
+        SECRETS_FILE: ${{ inputs.secrets_file }}
+        TARGET_ENV: ${{ inputs.environment }}
+      run: bash ${{ github.action_path }}/sync-secrets.sh

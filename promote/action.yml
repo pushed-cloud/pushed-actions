@@ -1,0 +1,84 @@
+name: 'Base Promote'
+description: 'Promote deployment between environments or promote a staged canary to live'
+author: 'NorceTech'
+
+branding:
+  icon: 'arrow-up-circle'
+  color: 'green'
+
+inputs:
+  app:
+    description: 'App name (defaults to repository name)'
+    required: false
+  environment:
+    description: >
+      Target environment for canary promotion. Use with canary: true to promote
+      a staged preview to live within this environment.
+    required: false
+  canary:
+    description: >
+      Set to "true" to promote a staged canary to live (requires environment input).
+      When false or omitted, performs cross-environment promotion (requires from_environment and to_environment).
+    required: false
+    default: 'false'
+  from_environment:
+    description: 'Source environment for cross-environment promotion (e.g., stage)'
+    required: false
+  to_environment:
+    description: 'Target environment for cross-environment promotion (e.g., prod)'
+    required: false
+  api_url:
+    description: 'Base Platform API URL'
+    required: false
+    default: 'https://base-api.norce.tech'
+  api_key:
+    description: 'Base Platform API key (identifies partner)'
+    required: true
+  wait_timeout:
+    description: >
+      Seconds to wait for a canary promotion to complete. Canary preview
+      environments: the platform promotes by a Git commit (API 200 with the commit
+      and the promoted tag) and this action polls the deploy status until the
+      environment is Healthy on that tag. Legacy in-Rollout canaries: the platform
+      strips the <env>-preview overrides and re-rolls the canary first, answers 202
+      while that converges, and this action polls until the rollout is Healthy.
+      Cross-environment promotions return immediately.
+    required: false
+    default: '900'
+
+outputs:
+  success:
+    description: 'Whether the promotion was successful'
+    value: ${{ steps.promote.outputs.success }}
+  namespace:
+    description: 'Kubernetes namespace'
+    value: ${{ steps.promote.outputs.namespace }}
+  git_commit_sha:
+    description: 'Git commit SHA in GitOps repo'
+    value: ${{ steps.promote.outputs.git_commit_sha }}
+  previous_image_tag:
+    description: 'Previous image tag in target environment'
+    value: ${{ steps.promote.outputs.previous_image_tag }}
+  new_image_tag:
+    description: 'New image tag (from source environment)'
+    value: ${{ steps.promote.outputs.new_image_tag }}
+  message:
+    description: 'Promotion message'
+    value: ${{ steps.promote.outputs.message }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Promote Deployment
+      id: promote
+      shell: bash
+      env:
+        API_URL: ${{ inputs.api_url }}
+        API_KEY: ${{ inputs.api_key }}
+        APP: ${{ inputs.app || github.event.repository.name }}
+        CANARY: ${{ inputs.canary }}
+        ENVIRONMENT: ${{ inputs.environment }}
+        FROM_ENV: ${{ inputs.from_environment }}
+        TO_ENV: ${{ inputs.to_environment }}
+        TIMEOUT: ${{ inputs.wait_timeout }}
+      run: bash ${{ github.action_path }}/promote.sh
