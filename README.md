@@ -20,7 +20,7 @@ The API key identifies your partner — there's no need to pass the partner name
 
 ### Runner requirements
 
-These actions parse your `.base/*.yaml` files with [`yq`](https://github.com/mikefarah/yq),
+These actions parse your `.pushed/*.yaml` files with [`yq`](https://github.com/mikefarah/yq),
 falling back to `python3` + PyYAML. **GitHub-hosted runners ship `yq` preinstalled, so
 nothing is needed there.** On a self-hosted runner, make sure one of the two is present
 on the image, or install `yq` in a step before the action:
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         with:
           environment: stage
@@ -106,20 +106,29 @@ You can create environments with any name you like — `brand-a-prod`, `eu-stage
 
 ## Configuration Files
 
-All optional. Place them in `.base/` at the repo root:
+All optional. Place them in `.pushed/` at the repo root:
 
 | File | Purpose | Docs |
 |------|---------|------|
-| `.base/config.yaml` | Per-environment config (replicas, resources, env vars, autoscaling) | [docs/config.md](docs/config.md) |
-| `.base/secrets.yaml` | Which secrets each environment uses | [docs/secrets.md](docs/secrets.md) |
-| `.base/nginx.yaml` | Custom proxy directives (headers, buffers, redirects) | [docs/nginx.md](docs/nginx.md) |
-| `.base/redirects.yaml` *or* `.csv` | Bulk URL redirects (migrations, SEO) | [docs/nginx.md](docs/nginx.md) |
+| `.pushed/config.yaml` | Per-environment config (replicas, resources, env vars, autoscaling) | [docs/config.md](docs/config.md) |
+| `.pushed/secrets.yaml` | Which secrets each environment uses | [docs/secrets.md](docs/secrets.md) |
+| `.pushed/nginx.yaml` | Custom proxy directives (headers, buffers, redirects) | [docs/nginx.md](docs/nginx.md) |
+| `.pushed/redirects.yaml` *or* `.csv` | Bulk URL redirects (migrations, SEO) | [docs/nginx.md](docs/nginx.md) |
+
+**Moving from `.base/`.** `.pushed/` is the new name of the directory that used to be
+`.base/`. The actions still read `.base/` when there is no `.pushed/`, and print a
+deprecation warning. If both exist, only `.pushed/` is read and the warning names any
+file left behind in `.base/`. Rename the directory and the `sparse-checkout` line in
+the same commit: when the commit has `.pushed/` (or still `.base/`) but the checkout
+leaves that directory out, the action fails and tells you which directory to add to
+`sparse-checkout`, rather than running without your config. An explicit `config_file`, `nginx_config_file`, `redirects_file`
+or `secrets_file` input is always used as given.
 
 ## Topic Guides
 
-- [Configuration reference](docs/config.md) — `.base/config.yaml` keys, PR templates, internal-only apps
+- [Configuration reference](docs/config.md) — `.pushed/config.yaml` keys, PR templates, internal-only apps
 - [Autoscaling](docs/scaling.md) — triggers (CPU, memory, HTTP, cron), behavior presets, scale-to-zero
-- [Secrets](docs/secrets.md) — `.base/secrets.yaml`, scope tags, staged-deploy overrides
+- [Secrets](docs/secrets.md) — `.pushed/secrets.yaml`, scope tags, staged-deploy overrides
 - [Proxy config & redirects](docs/nginx.md) — custom snippets, bulk URL redirects
 - [Multi-brand deploys](docs/multi-brand.md) — run multiple sites from a single app
 
@@ -135,7 +144,7 @@ No workflow changes needed when adding or removing custom domains. HTTP-based au
 ## How It Works
 
 1. Your workflow calls the action with deployment parameters
-2. The action reads `.base/*.yaml` from the runner's working directory
+2. The action reads `.pushed/*.yaml` from the runner's working directory
 3. The action calls the Base Platform API (partner is identified by the API key)
 4. The platform applies the configuration to your environment
 5. The action polls for health status (when `wait_for_healthy: true`, the default for `deploy`)

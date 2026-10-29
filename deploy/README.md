@@ -7,7 +7,7 @@ Deploys a new image tag to any named environment (`dev`, `test`, `stage`, `prod`
 ```yaml
 - uses: actions/checkout@v4
   with:
-    sparse-checkout: .base
+    sparse-checkout: .pushed
 - uses: pushed-cloud/pushed-actions/deploy@v1
   with:
     environment: stage
@@ -15,7 +15,7 @@ Deploys a new image tag to any named environment (`dev`, `test`, `stage`, `prod`
     api_key: ${{ secrets.BASE_PLATFORM_API_KEY }}
 ```
 
-The `sparse-checkout: .base` line is required — the action reads `.base/config.yaml`, `.base/secrets.yaml`, `.base/nginx.yaml`, and `.base/redirects.yaml` from the runner's working directory.
+The `sparse-checkout: .pushed` line is required — the action reads `.pushed/config.yaml`, `.pushed/secrets.yaml`, `.pushed/nginx.yaml`, and `.pushed/redirects.yaml` from the runner's working directory. A repo that still has the old `.base/` directory keeps working with a deprecation warning; see [Moving from `.base/`](../README.md#configuration-files).
 
 ## Full Example
 
@@ -44,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         with:
           environment: stage
@@ -57,7 +57,7 @@ jobs:
     environment: production  # Optional: requires GitHub approval
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         with:
           environment: prod
@@ -177,9 +177,9 @@ wait_timeout: '1200'  # 20 minutes
 | `api_key` | Yes | — | Platform API key — identifies the partner |
 | `app` | No | repo name | App name |
 | `image` | No | app name | Container image name (when the image name differs from the app) |
-| `config_file` | No | `.base/config.yaml` | Path to app config |
-| `nginx_config_file` | No | `.base/nginx.yaml` | Path to custom proxy config |
-| `redirects_file` | No | `.base/redirects.yaml` | Path to bulk redirects file (`.yaml` or `.csv`). Falls back to `.csv` if `.yaml` is not present. See [proxy config & redirects](../docs/nginx.md). |
+| `config_file` | No | `.pushed/config.yaml` | Path to app config |
+| `nginx_config_file` | No | `.pushed/nginx.yaml` | Path to custom proxy config |
+| `redirects_file` | No | `.pushed/redirects.yaml` | Path to bulk redirects file (`.yaml` or `.csv`). Falls back to `.csv` if `.yaml` is not present. See [proxy config & redirects](../docs/nginx.md). |
 | `api_url` | No | `https://base-api.norce.tech` | Platform API URL |
 | `wait_for_healthy` | No | `true` | Wait for the deploy to become healthy before exiting |
 | `wait_timeout` | No | `900` | Health-polling timeout (seconds). Must exceed ArgoCD's reconcile time — measured at 6–11 min on the shared controller. |
@@ -237,7 +237,7 @@ A genuine crash-loop on your own tag still fails within `DEGRADED_GRACE` (60s).
 
 ## Related Docs
 
-- [`.base/config.yaml` reference](../docs/config.md)
+- [`.pushed/config.yaml` reference](../docs/config.md)
 - [Autoscaling](../docs/scaling.md)
 - [Secrets](../docs/secrets.md)
 - [Proxy config & redirects](../docs/nginx.md)

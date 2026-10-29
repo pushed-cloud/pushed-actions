@@ -3,8 +3,12 @@ set -euo pipefail
 
 # Release identity (version + source repo) for the log and the X-Pushed-Action header.
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/action-id.sh"
+# Config directory: .pushed/, or the deprecated .base/.
+. "$(dirname "${BASH_SOURCE[0]}")/../lib/config-dir.sh"
 
 echo "$(action_id) (ref: ${GITHUB_ACTION_REF:-unknown})"
+
+config_file_default SECRETS_FILE secrets.yaml || exit 1
 
 if [ ! -f "$SECRETS_FILE" ]; then
   echo "::error::Secrets mapping file not found: $SECRETS_FILE"
@@ -258,7 +262,7 @@ if [ "$HAS_ENVIRONMENTS" = "true" ]; then
       echo "║   development → use 'dev' instead"
       echo "║   pre-prod   → use 'prod-preview' instead"
       echo "║"
-      echo "║ Check your .base/secrets.yaml"
+      echo "║ Check your ${SECRETS_FILE}"
       echo "╚══════════════════════════════════════════════════════"
       TOTAL_FAILED=$((TOTAL_FAILED + 1))
       continue

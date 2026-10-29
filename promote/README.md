@@ -34,7 +34,7 @@ jobs:
       preview_url: ${{ steps.deploy.outputs.preview_url }}
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         id: deploy
         with:
@@ -59,12 +59,12 @@ jobs:
 
 The action returns once the environment is `Healthy` on the promoted tag
 (bounded by `wait_timeout`), or fails honestly. Any `<env>-preview` overrides
-(env vars from `.base/config.yaml`, secrets from `.base/secrets.yaml`) apply to
+(env vars from `.pushed/config.yaml`, secrets from `.pushed/secrets.yaml`) apply to
 the canary only — the live version never receives them.
 
 The preview scope itself is **not** removed: the same overrides are applied
-again by your next staged deploy. Remove them from `.base/config.yaml` /
-`.base/secrets.yaml` (or the portal) when you no longer want them.
+again by your next staged deploy. Remove them from `.pushed/config.yaml` /
+`.pushed/secrets.yaml` (or the portal) when you no longer want them.
 
 If the wait times out the canary is left waiting and the job fails — re-running
 the promote job is safe and converges from the current state.

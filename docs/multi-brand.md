@@ -27,7 +27,7 @@ Each environment is isolated — its own config, secrets, domain, and routing.
 ## Config
 
 ```yaml
-# .base/config.yaml
+# .pushed/config.yaml
 environments:
   global:
     env:
@@ -104,7 +104,7 @@ environments:
 ## Secrets
 
 ```yaml
-# .base/secrets.yaml
+# .pushed/secrets.yaml
 environments:
   # Shared across every brand and environment
   global:
@@ -167,7 +167,7 @@ jobs:
         environment: [brand-a-stage, brand-b-stage]
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         with:
           app: my-brand-group
@@ -184,7 +184,7 @@ jobs:
         environment: [brand-a-prod, brand-b-prod]
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/deploy@v1
         with:
           app: my-brand-group
@@ -202,7 +202,7 @@ jobs:
 | Brand group | App (e.g. `my-brand-group`) |
 | Brand + env | Environment (e.g. `brand-a-prod`) |
 | Shared image | One container image per app |
-| Global secrets | `environments.global` in `.base/secrets.yaml` |
-| Per-brand secrets | `environments.<brand>-<env>` in `.base/secrets.yaml` |
-| Global env vars | `environments.global.env` in `.base/config.yaml` |
-| Per-brand env vars | `environments.<brand>-<env>.env` in `.base/config.yaml` |
+| Global secrets | `environments.global` in `.pushed/secrets.yaml` |
+| Per-brand secrets | `environments.<brand>-<env>` in `.pushed/secrets.yaml` |
+| Global env vars | `environments.global.env` in `.pushed/config.yaml` |
+| Per-brand env vars | `environments.<brand>-<env>.env` in `.pushed/config.yaml` |

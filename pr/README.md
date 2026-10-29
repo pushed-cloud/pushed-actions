@@ -34,7 +34,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         if: github.event.action != 'closed'
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/pr@v1
         with:
           action: ${{ github.event.action == 'closed' && 'delete' || (github.event.action == 'opened' && 'create' || 'update') }}
@@ -52,7 +52,7 @@ The three `action` values:
 
 ## Config
 
-PR environments use the `environments.pr` template in `.base/config.yaml`:
+PR environments use the `environments.pr` template in `.pushed/config.yaml`:
 
 ```yaml
 environments:
@@ -82,7 +82,7 @@ PR environments always scale to zero when idle — there's no need to configure 
 | `image_tag` | No | — | Image tag (not required for `delete`) |
 | `api_key` | Yes | — | Platform API key |
 | `app` | No | repo name | App name |
-| `config_file` | No | `.base/config.yaml` | Path to app config |
+| `config_file` | No | `.pushed/config.yaml` | Path to app config |
 | `api_url` | No | `https://base-api.norce.tech` | Platform API URL |
 
 ## Outputs
@@ -95,5 +95,5 @@ PR environments always scale to zero when idle — there's no need to configure 
 
 ## Related Docs
 
-- [`.base/config.yaml` reference](../docs/config.md) — see the `environments.pr` section
+- [`.pushed/config.yaml` reference](../docs/config.md) — see the `environments.pr` section
 - [Secrets](../docs/secrets.md) — PR environments get `environment=preview`-tagged secrets

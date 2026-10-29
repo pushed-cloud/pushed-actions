@@ -7,7 +7,7 @@ Two independent parts:
 - **Triggers** — what conditions cause scaling (CPU, memory, HTTP traffic, schedule)
 - **Behavior** — how fast scaling reacts (protects slow-starting apps)
 
-Enable it in `.base/config.yaml` per environment:
+Enable it in `.pushed/config.yaml` per environment:
 
 ```yaml
 environments:

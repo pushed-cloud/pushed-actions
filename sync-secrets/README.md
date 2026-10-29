@@ -2,11 +2,11 @@
 
 Pushes the values of GitHub Actions secrets into the platform's secure vault. Every subsequent deploy automatically mounts those values as environment variables in the matching environments.
 
-You only run `sync-secrets` **when a secret value changes**. Config changes in `.base/secrets.yaml` (scoping, adding new mappings) flow into deploys on their own.
+You only run `sync-secrets` **when a secret value changes**. Config changes in `.pushed/secrets.yaml` (scoping, adding new mappings) flow into deploys on their own.
 
 ## Quick Start
 
-1. Declare mappings in [`.base/secrets.yaml`](../docs/secrets.md):
+1. Declare mappings in [`.pushed/secrets.yaml`](../docs/secrets.md):
 
 ```yaml
 environments:
@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with: { sparse-checkout: .base }
+        with: { sparse-checkout: .pushed }
       - uses: pushed-cloud/pushed-actions/sync-secrets@v1
         env:
           SHARED_API_KEY:          ${{ secrets.SHARED_API_KEY }}
@@ -78,7 +78,7 @@ By default every environment is synced. Restrict to one:
 | `api_key` | Yes | — | Platform API key |
 | `app` | No | repo name | App name |
 | `environment` | No | all | Sync only this environment (global secrets always sync) |
-| `secrets_file` | No | `.base/secrets.yaml` | Path to secrets mapping file |
+| `secrets_file` | No | `.pushed/secrets.yaml` | Path to secrets mapping file |
 | `api_url` | No | `https://base-api.norce.tech` | Platform API URL |
 
 ## Outputs
@@ -91,4 +91,4 @@ By default every environment is synced. Restrict to one:
 
 ## Related Docs
 
-- [Secrets — scoping and the `.base/secrets.yaml` format](../docs/secrets.md)
+- [Secrets — scoping and the `.pushed/secrets.yaml` format](../docs/secrets.md)

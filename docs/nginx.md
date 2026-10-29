@@ -2,19 +2,19 @@
 
 Two optional files in your repo let you shape how the platform's edge proxy handles requests:
 
-- `.base/nginx.yaml` — custom proxy directives (headers, timeouts, redirects, maintenance mode)
-- `.base/redirects.yaml` (or `.csv`) — bulk URL redirects (migrations, SEO restructures)
+- `.pushed/nginx.yaml` — custom proxy directives (headers, timeouts, redirects, maintenance mode)
+- `.pushed/redirects.yaml` (or `.csv`) — bulk URL redirects (migrations, SEO restructures)
 
 Both files are **optional**. The next deploy picks up changes automatically — no workflow changes required.
 
 ---
 
-## Custom Proxy Config — `.base/nginx.yaml`
+## Custom Proxy Config — `.pushed/nginx.yaml`
 
 Override proxy defaults by adding NGINX-style snippets.
 
 ```yaml
-# .base/nginx.yaml
+# .pushed/nginx.yaml
 snippets:
   - context: http.server
     value: |
@@ -122,14 +122,14 @@ For security, these directives return a 400 error at deploy time:
 
 ---
 
-## Bulk Redirects — `.base/redirects.yaml` / `.csv`
+## Bulk Redirects — `.pushed/redirects.yaml` / `.csv`
 
 For large redirect lists (migrations, SEO restructures, brand changes), use a dedicated file instead of raw proxy snippets. Handles lists in the six figures — see [Limits](#limits) for the exact ceiling and what happens when you reach it.
 
 ### YAML format (recommended for < 1,000 entries)
 
 ```yaml
-# .base/redirects.yaml
+# .pushed/redirects.yaml
 redirects:
   - from: /gamla-kategorin/produkt-a
     to:   /nya-kategorin/produkt-a
@@ -142,7 +142,7 @@ redirects:
 ### CSV format (recommended for large lists)
 
 ```csv
-# .base/redirects.csv
+# .pushed/redirects.csv
 from,to,status
 /gamla-kategorin/produkt-a,/nya-kategorin/produkt-a,301
 /kampanj-2023,https://example.com/kampanjer,301
@@ -177,7 +177,7 @@ help you debug it. If you are approaching the limit, talk to us first.
 
 The usual way to shrink a list is to stop enumerating. Entries that share a shape — a
 whole retired category tree, a locale prefix — normally collapse into a single pattern
-rewrite in `.base/nginx.yaml`, which costs no chunk budget at all. See
+rewrite in `.pushed/nginx.yaml`, which costs no chunk budget at all. See
 [Coexistence](#coexistence).
 
 ### Performance
@@ -215,4 +215,4 @@ handed over from another app. After adding `stage.example.dk` to `myapp`, deploy
 
 ### Coexistence
 
-`.base/nginx.yaml` and `.base/redirects.yaml` can be used in the same app. Both are applied to the same routing setup at deploy time.
+`.pushed/nginx.yaml` and `.pushed/redirects.yaml` can be used in the same app. Both are applied to the same routing setup at deploy time.

@@ -1,6 +1,6 @@
-# Config Reference — `.base/config.yaml`
+# Config Reference — `.pushed/config.yaml`
 
-Every app can define environment-specific configuration in `.base/config.yaml`. Global settings apply to all environments; per-environment sections override them.
+Every app can define environment-specific configuration in `.pushed/config.yaml`. Global settings apply to all environments; per-environment sections override them.
 
 ## Full Example
 
@@ -168,7 +168,7 @@ It can also be set per run from the workflow, which overrides the config file:
     force_https: 'true'
 ```
 
-The order is: the workflow input first, then `force_https` in `.base/config.yaml`,
+The order is: the workflow input first, then `force_https` in `.pushed/config.yaml`,
 then whatever is already set in the portal. Leaving the workflow input out does
 not mean "change nothing" — if config.yaml sets `force_https`, that value is
 still sent. To keep the portal's current setting, leave it out of both.

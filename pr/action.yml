@@ -17,9 +17,9 @@ inputs:
     description: 'App name (defaults to repository name)'
     required: false
   config_file:
-    description: 'Path to config file'
+    description: 'Path to config file. Default: config.yaml in .pushed/ (or the deprecated .base/).'
     required: false
-    default: '.base/config.yaml'
+    default: ''
   api_url:
     description: 'Base Platform API URL'
     required: false

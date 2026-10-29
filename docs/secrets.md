@@ -4,14 +4,14 @@ Secrets are stored in the platform's secure vault and delivered to your app at r
 
 Two parts:
 
-1. **`.base/secrets.yaml`** — declares which secrets each environment uses and where they come from
+1. **`.pushed/secrets.yaml`** — declares which secrets each environment uses and where they come from
 2. **`sync-secrets` action** — pushes the actual secret values from GitHub Secrets into the platform vault
 
 Once a secret is in the vault, **every deploy** automatically mounts it into the matching environments based on its scope tags. You only re-run `sync-secrets` when a value changes.
 
 ---
 
-## `.base/secrets.yaml`
+## `.pushed/secrets.yaml`
 
 Maps GitHub secret names to vault entries, scoped per environment.
 
@@ -67,7 +67,7 @@ Each vault entry carries a scope tag that controls which environments see it.
 Use `<env>-preview` to inject a different secret value during the canary phase of a staged deploy:
 
 ```yaml
-# .base/secrets.yaml
+# .pushed/secrets.yaml
 environments:
   global:
     - github: SHARED_API_KEY
@@ -94,7 +94,7 @@ Live instances only ever see `environment=all` + `environment=prod`; the `prod-p
 
 ## Syncing Values
 
-Use the [`sync-secrets` action](../sync-secrets/README.md) to push values from GitHub Actions to the platform vault. The action reads `.base/secrets.yaml` to know what to sync; the values come from `env:` inputs in your workflow.
+Use the [`sync-secrets` action](../sync-secrets/README.md) to push values from GitHub Actions to the platform vault. The action reads `.pushed/secrets.yaml` to know what to sync; the values come from `env:` inputs in your workflow.
 
 ```yaml
 - uses: pushed-cloud/pushed-actions/sync-secrets@v1

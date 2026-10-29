@@ -34,7 +34,7 @@ validate_env() {
   echo "║   production → use 'prod' instead"
   echo "║   development → use 'dev' instead"
   echo "║"
-  echo "║ Check your workflow file or .base/config.yaml"
+  echo "║ Check your workflow file or .pushed/config.yaml"
   echo "╚══════════════════════════════════════════════════════"
   exit 1
 }

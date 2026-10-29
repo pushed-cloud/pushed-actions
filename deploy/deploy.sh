@@ -3,6 +3,8 @@ set -euo pipefail
 
 # Release identity (version + source repo) for the log and the X-Pushed-Action header.
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/action-id.sh"
+# Config directory: .pushed/, or the deprecated .base/.
+. "$(dirname "${BASH_SOURCE[0]}")/../lib/config-dir.sh"
 
 echo "$(action_id) (ref: ${GITHUB_ACTION_REF:-unknown})"
 
@@ -35,14 +37,19 @@ validate_env() {
   echo "║   production → use 'prod' instead"
   echo "║   development → use 'dev' instead"
   echo "║"
-  echo "║ Check your workflow file or .base/config.yaml"
+  echo "║ Check your workflow file or .pushed/config.yaml"
   echo "╚══════════════════════════════════════════════════════"
   exit 1
 }
 
 validate_env "$ENVIRONMENT" "environment"
 
-# Verify a YAML parser exists before any .base/*.yaml is read.
+# Empty inputs fall back to the config directory (see lib/config-dir.sh).
+config_file_default CONFIG_FILE config.yaml || exit 1
+config_file_default NGINX_CONFIG_FILE nginx.yaml || exit 1
+config_file_default REDIRECTS_FILE redirects.yaml || exit 1
+
+# Verify a YAML parser exists before any .pushed/*.yaml is read.
 #
 # Every YAML read below is `yq` with a `python3 -c "import yaml"` fallback.
 # Three of those fallbacks used to discard stderr and carry no `|| ...` guard,
@@ -127,7 +134,7 @@ ENABLE_HEALTH_PROBE="${ENABLE_HEALTH_PROBE:-false}"
 USE_NOPROXY="${USE_NOPROXY:-true}"
 
 # A YAML read only happens when one of these files is present, so the parser
-# check is conditional too — an app with no .base/ directory still deploys on a
+# check is conditional too — an app with no config directory still deploys on a
 # runner without yq.
 #
 # redirects_file may legitimately point at a .csv (action.yml allows it), and
@@ -139,16 +146,16 @@ NEEDS_YAML_PARSER=false
 if [ -f "$CONFIG_FILE" ] || [ -f "${NGINX_CONFIG_FILE:-}" ]; then
   NEEDS_YAML_PARSER=true
 fi
-case "${REDIRECTS_FILE:-.base/redirects.yaml}" in
+case "$REDIRECTS_FILE" in
   *.csv) ;;
   *)
-    if [ -f "${REDIRECTS_FILE:-.base/redirects.yaml}" ]; then
+    if [ -f "$REDIRECTS_FILE" ]; then
       NEEDS_YAML_PARSER=true
     fi
     ;;
 esac
 if [ "$NEEDS_YAML_PARSER" = "true" ]; then
-  require_yaml_parser "your .base/*.yaml config"
+  require_yaml_parser "your ${PUSHED_CONFIG_DIR:-.pushed}/*.yaml config"
 fi
 
 # CSV redirects need python3 (stdlib csv only). Same reasoning as the YAML
@@ -376,7 +383,7 @@ fail_redirects() {
   exit 1
 }
 
-REDIRECTS_INPUT="${REDIRECTS_FILE:-.base/redirects.yaml}"
+REDIRECTS_INPUT="$REDIRECTS_FILE"
 REDIRECTS_TMP=$(mktemp)
 echo "[]" > "$REDIRECTS_TMP"
 REDIRECTS_FILE_FOUND=false
@@ -491,7 +498,7 @@ elif [ -n "$FORCE_HTTPS" ] && [ "$FORCE_HTTPS" != "true" ] && [ "$FORCE_HTTPS" !
   # A warning, not an error: config.yaml is already in use by partners and a
   # deploy must not start failing on a value that was previously ignored. But
   # ignoring it in silence is what makes this hard to debug.
-  echo "::warning::force_https in .base/config.yaml must be true or false, got: '${FORCE_HTTPS}'. Ignoring it and keeping the current portal setting."
+  echo "::warning::force_https in ${CONFIG_FILE} must be true or false, got: '${FORCE_HTTPS}'. Ignoring it and keeping the current portal setting."
   FORCE_HTTPS=""
 fi
 if [ "$FORCE_HTTPS" = "true" ]; then
@@ -600,8 +607,9 @@ if [ "$HTTP_CODE" -ne 200 ]; then
     401)
       echo "║"
       echo "║ 🔑 Fix: Check that your api_key secret is set correctly."
-      echo "║   The API key should start with 'base_' and be configured"
-      echo "║   as a repository or organization secret."
+      echo "║   The API key should start with 'pushed_' (new and"
+      echo "║   regenerated keys) or 'base_' (keys issued earlier) and"
+      echo "║   be configured as a repository or organization secret."
       ;;
     403)
       echo "║"

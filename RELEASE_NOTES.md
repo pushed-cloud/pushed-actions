@@ -5,6 +5,14 @@ What changed in the pushed-cloud/pushed-actions GitHub Actions (`deploy`, `promo
 https://base-docs.norce.tech/releases. Pin `@v1` to follow compatible releases, or an
 exact `vX.Y.Z`.
 
+## v1.4.0 — 2026-10-29
+
+### All actions
+- **Config directory `.pushed/`.** The actions now read your config files from `.pushed/` at the repo root. The old `.base/` directory keeps working when there is no `.pushed/`, with a warning in the job log asking you to rename it. To move: rename `.base/` to `.pushed/` and change `sparse-checkout: .base` to `sparse-checkout: .pushed` in your workflows, in the same commit. If your commit has a config directory (`.pushed/` or `.base/`) that the workflow does not check out, the action now stops with a message that says how to fix the checkout, instead of running without your config. If both directories exist, only `.pushed/` is read.
+
+### deploy
+- **The 401 hint names both API key formats.** New and regenerated API keys start with `pushed_`; keys issued earlier start with `base_` and keep working. When the platform refuses the key, the hint now says either prefix is valid. Nothing to change in your workflow.
+
 ## v1.3.0 — 2026-09-25
 
 ### All actions

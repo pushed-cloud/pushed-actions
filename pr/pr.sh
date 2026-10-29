@@ -3,16 +3,18 @@ set -euo pipefail
 
 # Release identity (version + source repo) for the log and the X-Pushed-Action header.
 . "$(dirname "${BASH_SOURCE[0]}")/../lib/action-id.sh"
+# Config directory: .pushed/, or the deprecated .base/.
+. "$(dirname "${BASH_SOURCE[0]}")/../lib/config-dir.sh"
 
 echo "$(action_id) (ref: ${GITHUB_ACTION_REF:-unknown})"
 
-# Verify a YAML parser exists before reading .base/config.yaml.
+# Verify a YAML parser exists before reading .pushed/config.yaml.
 #
 # Unlike deploy.sh and sync-secrets.sh — which died outright — the fallback
 # below is guarded with `|| echo "{}"`. That makes this failure quieter and
 # worse: with neither yq nor PyYAML the PR ephemeral is created with an EMPTY
 # config, so every env var, replica count and resource limit from
-# .base/config.yaml is silently dropped and the run still reports success.
+# config.yaml is silently dropped and the run still reports success.
 # Refuse to build a PR environment we cannot configure correctly.
 require_yaml_parser() {
   local what="$1"
@@ -82,6 +84,10 @@ require_yaml_parser() {
 
 # Manage PR ephemeral environments (pr-*).
 # Config resolution (three-layer): global → inherited env → pr scope overrides
+# A delete reads no config (and its job usually has no checkout).
+if [ "$ACTION" != "delete" ]; then
+  config_file_default CONFIG_FILE config.yaml || exit 1
+fi
 if [ "$ACTION" != "delete" ] && [ -f "$CONFIG_FILE" ]; then
   require_yaml_parser "$CONFIG_FILE"
   if command -v yq &> /dev/null; then

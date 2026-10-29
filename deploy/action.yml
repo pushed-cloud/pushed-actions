@@ -20,17 +20,17 @@ inputs:
     description: 'Container image name (defaults to app name). Use when the image name differs from the app name.'
     required: false
   config_file:
-    description: 'Path to config file'
+    description: 'Path to config file. Default: config.yaml in .pushed/ (or the deprecated .base/).'
     required: false
-    default: '.base/config.yaml'
+    default: ''
   nginx_config_file:
-    description: 'Path to custom NGINX config file (proxy buffers, headers, etc.)'
+    description: 'Path to custom NGINX config file (proxy buffers, headers, etc.). Default: nginx.yaml in .pushed/ (or the deprecated .base/).'
     required: false
-    default: '.base/nginx.yaml'
+    default: ''
   redirects_file:
-    description: 'Path to redirects file (.yaml or .csv) for bulk redirects. Handles six-figure lists; see docs/nginx.md for the exact ceiling.'
+    description: 'Path to redirects file (.yaml or .csv) for bulk redirects. Handles six-figure lists; see docs/nginx.md for the exact ceiling. Default: redirects.yaml (or .csv) in .pushed/ (or the deprecated .base/).'
     required: false
-    default: '.base/redirects.yaml'
+    default: ''
   api_url:
     description: 'Base Platform API URL'
     required: false
@@ -58,7 +58,7 @@ inputs:
     description: >
       Redirect plain HTTP to HTTPS for this environment. Must be "true" or
       "false" when set; anything else fails the deploy rather than being ignored.
-      Precedence is: this input, then force_https in .base/config.yaml, then the
+      Precedence is: this input, then force_https in .pushed/config.yaml, then the
       current portal setting. So omitting it does NOT mean "leave things alone"
       if config.yaml sets force_https — that value still applies. Omit it here
       and from config.yaml to keep whatever the portal already has.

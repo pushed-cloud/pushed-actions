@@ -14,9 +14,9 @@ inputs:
     description: 'Sync only this environment (default: sync all environments in the file)'
     required: false
   secrets_file:
-    description: 'Path to secrets mapping file'
+    description: 'Path to secrets mapping file. Default: secrets.yaml in .pushed/ (or the deprecated .base/).'
     required: false
-    default: '.base/secrets.yaml'
+    default: ''
   api_url:
     description: 'Base Platform API URL'
     required: false
