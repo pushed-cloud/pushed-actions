@@ -1,6 +1,6 @@
-# Base Platform GitHub Actions
+# Pushed GitHub Actions
 
-Official GitHub Actions for deploying apps to the **Norce Base Platform**.
+Official GitHub Actions for deploying apps to **Pushed**.
 
 ## Actions
 
@@ -13,7 +13,7 @@ Official GitHub Actions for deploying apps to the **Norce Base Platform**.
 
 ## Setup
 
-1. Get your partner API key from the Base Portal (or from your NorceTech contact)
+1. Get your partner API key from the Pushed Portal (or from your NorceTech contact)
 2. Add it as a repository secret named **`BASE_PLATFORM_API_KEY`**
 
 The API key identifies your partner — there's no need to pass the partner name in your workflows.
@@ -134,7 +134,7 @@ or `secrets_file` input is always used as given.
 
 ## Custom Domains
 
-Custom domains are managed in the **Base Portal** (Settings → *Domains*). When you add one, the platform automatically:
+Custom domains are managed in the **Pushed Portal** (Settings → *Domains*). When you add one, the platform automatically:
 
 1. Issues an HTTPS certificate
 2. Configures traffic routing
@@ -145,7 +145,7 @@ No workflow changes needed when adding or removing custom domains. HTTP-based au
 
 1. Your workflow calls the action with deployment parameters
 2. The action reads `.pushed/*.yaml` from the runner's working directory
-3. The action calls the Base Platform API (partner is identified by the API key)
+3. The action calls the Pushed API (partner is identified by the API key)
 4. The platform applies the configuration to your environment
 5. The action polls for health status (when `wait_for_healthy: true`, the default for `deploy`)
 

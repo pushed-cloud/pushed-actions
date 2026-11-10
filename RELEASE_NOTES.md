@@ -5,6 +5,14 @@ What changed in the pushed-cloud/pushed-actions GitHub Actions (`deploy`, `promo
 https://base-docs.norce.tech/releases. Pin `@v1` to follow compatible releases, or an
 exact `vX.Y.Z`.
 
+## v1.4.1 — 2026-11-10
+
+### All actions
+- **The READMEs use the name Pushed.** The documentation of the actions now calls the platform Pushed. Nothing changes in how the actions run, their inputs and outputs, or your workflows.
+
+### pr (pull-request environments)
+- **Keeping PR environments warm is documented.** The `pr` README now describes two settings that have been live on the platform since 9 November. PR environments still scale to zero when idle by default. Set `environments.pr.autoscaling.scaleToZero: false` to keep one instance running, and `environments.pr.autoscaling.cooldownPeriod` (60 to 86400 seconds, default 300) to control how long a PR environment waits without traffic before scaling to zero (ignored when `scaleToZero` is false). With `inherits`, the parent's `autoscaling` carries over if `pr` sets none; if you set `pr.autoscaling`, set both values there. See the [scaling guide](https://docs.pushed.cloud/guides/scaling).
+
 ## v1.4.0 — 2026-10-29
 
 ### All actions

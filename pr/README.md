@@ -72,7 +72,7 @@ environments:
 
 Full reference → [docs/config.md](../docs/config.md).
 
-PR environments always scale to zero when idle — there's no need to configure autoscaling for them.
+PR environments scale to zero when idle by default, so you don't need to configure autoscaling for them. To keep a preview warm, set `environments.pr.autoscaling.scaleToZero: false`: it keeps one instance running and still scales up to 2 (or `replicas`, if higher) under load. `environments.pr.autoscaling.cooldownPeriod` sets how long a preview waits without traffic before scaling to zero (default 300, range 60 to 86400 seconds; ignored when `scaleToZero` is false). With `inherits` (for example `inherits: stage`), the parent's `autoscaling` carries over if `pr` sets none. If you set `pr.autoscaling`, set both `scaleToZero` and `cooldownPeriod` there, because some runners replace the whole block instead of merging. See the [scaling guide](https://base-docs.norce.tech/guides/scaling).
 
 ## Inputs
 

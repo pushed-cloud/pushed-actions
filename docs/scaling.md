@@ -234,7 +234,7 @@ environments:
 
 **Good fit:**
 - Stage / test environments used only during working hours
-- PR environments (enabled automatically — PRs always scale to zero)
+- PR environments (on by default; set `environments.pr.autoscaling.scaleToZero: false` to keep one instance warm, see [pr/README.md](../pr/README.md#config))
 - Low-traffic internal tools
 
 **Don't use for:**

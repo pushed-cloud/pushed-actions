@@ -226,7 +226,7 @@ Both require `python3` (stdlib only). `test-deploy-curl.sh` validates:
 2. Connection-refused run exits 1 with the friendly error box
 3. Mock-HTTP-200 run exits 0 with correct `GITHUB_OUTPUT` values
 
-`test-wait-healthy.sh` runs the action against a mock Base API and asserts the two
+`test-wait-healthy.sh` runs the action against a mock Pushed API and asserts the two
 verdicts this action must never get wrong:
 1. A slow ArgoCD reconcile is **not** reported as a failed deployment — while your tag
    is not live, the reported health belongs to the release you are replacing
