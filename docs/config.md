@@ -35,7 +35,6 @@ environments:
     replicas: 2
     healthCheckPath: /api/health
     startupGracePeriod: 90
-    is_private: false                # default false — set true for internal-only (no public endpoint)
     force_https: true                # default false — 301 plain HTTP to HTTPS
     resources:
       requests: { cpu: 500m,  memory: 1.5Gi }
@@ -84,7 +83,7 @@ environments:
 | `containerPort` | Port the app listens on (default `3000`). |
 | `healthCheckPath` | HTTP readiness probe path. Omit to use a TCP port check (safe for auth-protected apps). |
 | `startupGracePeriod` | Seconds to wait before failing the startup probe (default `300`, range `10–900`). Increase for slow-start apps. |
-| `is_private` | `true` hides the environment from the public internet — no public endpoint, no DNS. See [Internal-Only Deployments](#internal-only-deployments). |
+| `is_private` | `true` hides the environment from the public internet — no public endpoint, no DNS. `false` makes it public again on the next deploy, even if *Internal only* was switched on in the portal. Leave the key out to keep the portal setting. See [Internal-Only Deployments](#internal-only-deployments). |
 | `force_https` | `true` answers plain HTTP with a 301 to the HTTPS URL. Default `false`, which serves both. See [Forcing HTTPS](#forcing-https). |
 | `resources.requests` / `resources.limits` | CPU and memory reservations. |
 | `autoscaling` | Autoscaling rules — see [docs/scaling.md](scaling.md). |
@@ -141,6 +140,8 @@ When `is_private: true`:
 - The app is only reachable from other apps in the same organization via an internal platform address
 
 The toggle is also available in the portal (Environments → *Internal only*). Once set, it flows through promotions and rollbacks automatically.
+
+A value in config.yaml is sent on every deploy and wins over the portal: `is_private: false` switches *Internal only* off again. To manage the setting in the portal, leave `is_private` out of config.yaml.
 
 > ⚠️ Switching an existing public environment to `is_private: true` **removes** all public routing and DNS. Existing traffic will be dropped.
 

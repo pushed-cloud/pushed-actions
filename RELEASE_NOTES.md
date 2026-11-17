@@ -5,6 +5,11 @@ What changed in the pushed-cloud/pushed-actions GitHub Actions (`deploy`, `promo
 https://base-docs.norce.tech/releases. Pin `@v1` to follow compatible releases, or an
 exact `vX.Y.Z`.
 
+## v1.4.2 — 2026-11-17
+
+### deploy
+- **`false` in config.yaml now switches a setting off.** `is_private: false` and `force_https: false` were not sent, so an environment kept the value it had before: one switched to *Internal only* or *Force HTTPS* in the portal, or by an earlier `true` in config.yaml, could not be switched back from config.yaml. The deploy action now sends `false`. **Check before your next deploy:** if config.yaml says `false` for a setting you switched on in the portal, the deploy now switches it off. An `is_private: false` copied from an example makes an internal-only environment public. Remove the line, or set it to `true`, to keep the portal value. Settings you leave out of config.yaml keep their current value, as before.
+
 ## v1.4.1 — 2026-11-10
 
 ### All actions
